@@ -16,45 +16,58 @@ program.parse(process.argv);
 const { host, port, cache } = program.opts();
 const cacheDir = path.resolve(cache);
 
-if (!host || !port || !cache) {
+if (!host || !port || !cache) 
+  {
   console.error('Помилка: не задано обов`язкові параметри --host, --port та --cache.');
   process.exit(1);
 }
 
-async function fetchImageFromHttpCat(statusCode) {
+async function fetchImageFromHttpCat(statusCode)
+ {
   try {
     const response = await superagent.get(`https://http.cat/${statusCode}`);
     return response.body;
-  } catch (err) {
+  } 
+  catch (err) 
+  {
     throw new Error('Не вдалося отримати картинку з http.cat');
   }
 }
 
 
-const server = http.createServer(async (req, res) => {
+const server = http.createServer(async (req, res) =>
+   {
   const statusCode = req.url.slice(1);
   const filePath = path.join(cacheDir, `${statusCode}.jpg`);
 
  
-  if (req.method === 'GET') {
-    try {
+  if (req.method === 'GET') 
+    {
+    try 
+    {
       const fileData = await fs.readFile(filePath);
       res.writeHead(200, { 'Content-Type': 'image/jpeg' });
       res.end(fileData);
-    } catch (err) {
-      try {
+    } 
+    catch (err)
+    {
+      try 
+      {
         const imageData = await fetchImageFromHttpCat(statusCode);
         await fs.writeFile(filePath, imageData);
         res.writeHead(200, { 'Content-Type': 'image/jpeg' });
         res.end(imageData);
-      } catch (error) {
+      } 
+      catch (error)
+       {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
       }
     }
   } 
 
-  else if (req.method === 'PUT') {
+  else if (req.method === 'PUT')
+     {
     let body = [];
     req.on('data', chunk => body.push(chunk));
     req.on('end', async () => {
@@ -67,7 +80,9 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Internal server error');
       }
-    });
+    }
+  )
+  ;
   } 
   
   else if (req.method === 'DELETE') {
@@ -81,13 +96,18 @@ const server = http.createServer(async (req, res) => {
     }
   } 
  
-  else {
+  else 
+  {
     res.writeHead(405, { 'Content-Type': 'text/plain' });
     res.end('Method not allowed');
   }
-});
+}
+)
+;
 
 
 server.listen(port, host, () => {
   console.log(`Сервер запущено на http://${host}:${port}`);
-});
+}
+)
+;
